@@ -1,0 +1,59 @@
+import { Clock } from "lucide-react";
+import type { FormData } from "../BookingWizard";
+
+interface AddonsStepProps {
+  formData: FormData;
+  update: <K extends keyof FormData>(field: K, value: FormData[K]) => void;
+  onNext: () => void;
+  onBack: () => void;
+}
+
+const OPTIONS = [
+  { value: "9-11" as const, label: "9:00 am – 11:00 am", sub: "Turno mañana" },
+  { value: "11-14" as const, label: "11:00 am – 2:00 pm", sub: "Turno mediodía" },
+];
+
+export function AddonsStep({ formData, update, onNext }: AddonsStepProps) {
+  const handleSelect = (value: "9-11" | "11-14") => {
+    update("timeRange", value);
+    onNext();
+  };
+
+  return (
+    <div>
+      <h2 className="mb-8 text-center text-2xl font-bold text-gray-800">
+        Elige un horario
+      </h2>
+      <div className="grid grid-cols-2 gap-6">
+        {OPTIONS.map(({ value, label, sub }) => {
+          const selected = formData.timeRange === value;
+          return (
+            <button
+              key={value}
+              onClick={() => handleSelect(value)}
+              className={`flex cursor-pointer flex-col items-center gap-4 rounded-2xl border-2 p-10 transition-all duration-200 ${
+                selected
+                  ? "border-blue-500 bg-blue-50 shadow-md shadow-blue-100"
+                  : "border-gray-200 bg-white shadow-sm hover:border-blue-300 hover:shadow-md hover:shadow-gray-200"
+              }`}
+            >
+              <Clock
+                className={`h-16 w-16 transition-colors ${
+                  selected ? "text-blue-600" : "text-gray-600"
+                }`}
+              />
+              <span
+                className={`text-xl font-semibold ${
+                  selected ? "text-blue-700" : "text-gray-700"
+                }`}
+              >
+                {label}
+              </span>
+              <span className="text-sm text-gray-400">{sub}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
