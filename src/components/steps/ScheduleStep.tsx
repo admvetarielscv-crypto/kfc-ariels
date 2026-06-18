@@ -1,5 +1,9 @@
 import { useState, useMemo } from "react";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isBefore, startOfDay, addMonths, subMonths, isSameMonth } from "date-fns";
+import {
+  format, startOfMonth, endOfMonth, eachDayOfInterval,
+  isSameDay, isBefore, startOfDay, addMonths, subMonths,
+  getDay
+} from "date-fns";
 import { es } from "date-fns/locale";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { FormData } from "../BookingWizard";
@@ -17,13 +21,13 @@ export function ScheduleStep({ formData, update, onNext }: ScheduleStepProps) {
   const today = startOfDay(new Date());
   const [currentMonth, setCurrentMonth] = useState(today);
 
-  const days = useMemo(() => {
+  const { days, blanks } = useMemo(() => {
     const start = startOfMonth(currentMonth);
     const end = endOfMonth(currentMonth);
-    return eachDayOfInterval({ start, end });
+    const monthDays = eachDayOfInterval({ start, end });
+    const firstDay = getDay(start);
+    return { days: monthDays, blanks: firstDay };
   }, [currentMonth]);
-
-  const firstDayOfWeek = days[0].getDay();
 
   const prevMonth = () => setCurrentMonth((m) => subMonths(m, 1));
   const nextMonth = () => setCurrentMonth((m) => addMonths(m, 1));
@@ -64,30 +68,24 @@ export function ScheduleStep({ formData, update, onNext }: ScheduleStepProps) {
           {dayNames.map((d) => (
             <div key={d} className="py-2">{d}</div>
           ))}
-        </div>
-
-        <div
-          className="grid grid-cols-7 gap-1"
-          style={{ paddingLeft: `${firstDayOfWeek * 100 / 7}%` }}
-        >
+          {Array.from({ length: blanks }).map((_, i) => (
+            <div key={`blank-${i}`} />
+          ))}
           {days.map((day) => {
             const isPast = isBefore(day, today) && !isSameDay(day, today);
             const selected = formData.date === format(day, "yyyy-MM-dd");
-            const isCurrentMonth = isSameMonth(day, currentMonth);
 
             return (
               <button
                 key={day.toISOString()}
-                disabled={isPast || !isCurrentMonth}
+                disabled={isPast}
                 onClick={() => handleSelect(day)}
                 className={`rounded-lg py-3 text-sm font-medium transition-all ${
-                  !isCurrentMonth
-                    ? "invisible"
-                    : isPast
-                      ? "cursor-not-allowed text-gray-300"
-                      : selected
-                        ? "bg-blue-600 text-white shadow-md"
-                        : "text-gray-800 hover:bg-blue-100"
+                  isPast
+                    ? "cursor-not-allowed text-gray-300"
+                    : selected
+                      ? "bg-blue-600 text-white shadow-md"
+                      : "text-gray-800 hover:bg-blue-100"
                 }`}
               >
                 {format(day, "d")}

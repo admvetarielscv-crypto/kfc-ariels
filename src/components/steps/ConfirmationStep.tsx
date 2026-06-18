@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, MapPin } from "lucide-react";
 import type { FormData, PetData } from "../BookingWizard";
 
 interface ConfirmationStepProps {
@@ -16,13 +16,27 @@ interface ConfirmationStepProps {
 const PET_TYPE_LABELS: Record<string, string> = { dog: "Perro", cat: "Gato" };
 const SERVICE_LABELS: Record<string, string> = { bath: "Baño", bath_cut: "Baño + Corte" };
 const SIZE_LABELS: Record<string, string> = { small: "Pequeño", medium: "Mediano", large: "Grande" };
-const COAT_LABELS: Record<string, string> = { normal: "Normal / Sin nudos", knotted: "Con nudos / Enmarañado" };
 const TIME_LABELS: Record<string, string> = { "9-11": "9:00 am – 11:00 am", "11-14": "11:00 am – 2:00 pm" };
 const EXTRA_LABELS: Record<string, string> = { deworming: "Desparasitación", antiflea: "Antipulgas", vaccine: "Vacuna" };
 const CORTE_LABELS: Record<string, string> = {
   rapado: "Corte Rapado",
   rebaje: "Rebaje Comercial (1 cm de largo parejo)",
   tijera: "Corte con Tijera / Estilo de la raza",
+};
+const BATH_LABELS: Record<string, string> = {
+  hidratado_premium: "Hidratado Premium",
+  medicado: "Baño Medicado",
+  tradicional: "Baño Tradicional",
+};
+const PERFUME_LABELS: Record<string, string> = {
+  fruital: "🍓 Frutal",
+  floral: "🌸 Floral",
+  fresco: "🍃 Fresco",
+};
+const BRANCH_LABELS: Record<string, string> = {
+  san_martin: "San Martín de Porres",
+  los_olivos: "Los Olivos",
+  san_miguel: "San Miguel",
 };
 
 function formatDate(dateStr: string) {
@@ -39,6 +53,7 @@ function PetCard({ pet, index }: { pet: PetData; index: number }) {
       <div className="space-y-1 text-sm text-gray-600">
         <p><span className="font-medium text-gray-700">Tipo:</span> {PET_TYPE_LABELS[pet.petType]}</p>
         <p><span className="font-medium text-gray-700">Servicio:</span> {SERVICE_LABELS[pet.service]}</p>
+        <p><span className="font-medium text-gray-700">Tipo de baño:</span> {BATH_LABELS[pet.bathType ?? ""] ?? "-"}</p>
         {pet.service === "bath_cut" && (
           <>
             <p><span className="font-medium text-gray-700">Tipo de corte:</span> {CORTE_LABELS[pet.corteType ?? ""] ?? "-"}</p>
@@ -64,7 +79,9 @@ function PetCard({ pet, index }: { pet: PetData; index: number }) {
           </p>
         )}
         <p><span className="font-medium text-gray-700">Tamaño:</span> {SIZE_LABELS[pet.size]}</p>
-        <p><span className="font-medium text-gray-700">Pelaje:</span> {COAT_LABELS[pet.coat]}</p>
+        {pet.perfume && (
+          <p><span className="font-medium text-gray-700">Aroma:</span> {PERFUME_LABELS[pet.perfume]}</p>
+        )}
         {pet.petNotes && (
           <p><span className="font-medium text-gray-700">Notas:</span> {pet.petNotes}</p>
         )}
@@ -95,6 +112,20 @@ export function ConfirmationStep({ formData, onBack: _onBack }: ConfirmationStep
       <h2 className="mb-6 text-center text-2xl font-bold text-gray-800">
         Resumen de tu solicitud
       </h2>
+
+      {formData.branch && (
+        <div className="mb-6 rounded-2xl border border-blue-200 bg-blue-50 p-5 shadow-sm">
+          <div className="flex items-center gap-3">
+            <MapPin className="h-6 w-6 text-blue-600" />
+            <div>
+              <p className="text-sm font-medium text-blue-500">Sede seleccionada</p>
+              <p className="text-lg font-bold text-blue-800">
+                {BRANCH_LABELS[formData.branch]}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="mb-6 space-y-4 rounded-2xl border border-gray-200 bg-gray-50 p-5">
         <p className="text-sm font-semibold text-gray-700">Mascotas Agendadas</p>

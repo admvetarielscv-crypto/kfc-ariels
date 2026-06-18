@@ -13,8 +13,8 @@ interface MascotaAgregadaStepProps {
 const PET_TYPE_LABELS: Record<string, string> = { dog: "Perro", cat: "Gato" };
 const SERVICE_LABELS: Record<string, string> = { bath: "Baño", bath_cut: "Baño + Corte" };
 const SIZE_LABELS: Record<string, string> = { small: "Pequeño", medium: "Mediano", large: "Grande" };
-const COAT_LABELS: Record<string, string> = { normal: "Normal / Sin nudos", knotted: "Con nudos / Enmarañado" };
 const EXTRA_LABELS: Record<string, string> = { deworming: "Desparasitación", antiflea: "Antipulgas", vaccine: "Vacuna" };
+const PERFUME_LABELS: Record<string, string> = { fruital: "🍓 Frutal", floral: "🌸 Floral", fresco: "🍃 Fresco" };
 
 export function MascotaAgregadaStep({ formData, onAddAnother, onContinue }: MascotaAgregadaStepProps) {
   const currentPet: PetData = {
@@ -25,6 +25,11 @@ export function MascotaAgregadaStep({ formData, onAddAnother, onContinue }: Masc
     coat: formData.coat ?? "normal",
     petNotes: formData.petNotes,
     petName: formData.petName,
+    corteType: formData.corteType,
+    corteSpecs: formData.corteSpecs,
+    corteImage: formData.corteImage,
+    bathType: formData.bathType,
+    perfume: formData.perfume,
   };
 
   const extraSummary =
@@ -39,7 +44,8 @@ export function MascotaAgregadaStep({ formData, onAddAnother, onContinue }: Masc
         ¡Mascota agregada!
       </h2>
       <p className="text-center text-gray-500">
-        {currentPet.petName || "Mascota"} — {PET_TYPE_LABELS[currentPet.petType]} | {SERVICE_LABELS[currentPet.service]} | {SIZE_LABELS[currentPet.size]} | {COAT_LABELS[currentPet.coat]}
+        {currentPet.petName || "Mascota"} — {PET_TYPE_LABELS[currentPet.petType]} | {SERVICE_LABELS[currentPet.service]} | {SIZE_LABELS[currentPet.size]}
+        {currentPet.perfume && <> | {PERFUME_LABELS[currentPet.perfume]}</>}
         {extraSummary && <> | {extraSummary}</>}
       </p>
 

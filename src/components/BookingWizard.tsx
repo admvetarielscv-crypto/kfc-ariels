@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { ChevronLeft } from "lucide-react";
+import { BranchSelectionStep } from "./steps/BranchSelectionStep";
 import { ServiceTypeStep } from "./steps/ServiceTypeStep";
 import { PetInfoStep } from "./steps/PetInfoStep";
 import { OwnerInfoStep } from "./steps/OwnerInfoStep";
-import { AddressStep } from "./steps/AddressStep";
 import { MascotaAgregadaStep } from "./steps/MascotaAgregadaStep";
 import { ScheduleStep } from "./steps/ScheduleStep";
 import { AddonsStep } from "./steps/AddonsStep";
@@ -21,19 +21,24 @@ export interface PetData {
   corteType: "rapado" | "rebaje" | "tijera" | null;
   corteSpecs: string;
   corteImage: string;
+  bathType: "hidratado_premium" | "medicado" | "tradicional" | null;
+  perfume: "fruital" | "floral" | "fresco" | null;
 }
 
 export interface FormData {
+  branch: "san_martin" | "los_olivos" | "san_miguel" | null;
   petType: "dog" | "cat" | null;
   service: "bath" | "bath_cut" | null;
   extraServices: string[];
   size: "small" | "medium" | "large" | null;
-  coat: "normal" | "knotted" | null;
+  coat: "normal" | "knotted";
   petNotes: string;
   petName: string;
   corteType: "rapado" | "rebaje" | "tijera" | null;
   corteSpecs: string;
   corteImage: string;
+  bathType: "hidratado_premium" | "medicado" | "tradicional" | null;
+  perfume: "fruital" | "floral" | "fresco" | null;
   pets: PetData[];
   date: string | null;
   timeRange: "9-11" | "11-14" | null;
@@ -57,19 +62,21 @@ const INITIAL_PET_FIELDS = {
   service: null as "bath" | "bath_cut" | null,
   extraServices: [] as string[],
   size: null as "small" | "medium" | "large" | null,
-  coat: null as "normal" | "knotted" | null,
+  coat: "normal" as "normal" | "knotted",
   petNotes: "",
   petName: "",
   corteType: null as "rapado" | "rebaje" | "tijera" | null,
   corteSpecs: "",
   corteImage: "",
+  bathType: null as "hidratado_premium" | "medicado" | "tradicional" | null,
+  perfume: null as "fruital" | "floral" | "fresco" | null,
 };
 
 const STEPS = [
+  BranchSelectionStep,
   ServiceTypeStep,
   PetInfoStep,
   OwnerInfoStep,
-  AddressStep,
   MascotaAgregadaStep,
   ScheduleStep,
   AddonsStep,
@@ -78,10 +85,10 @@ const STEPS = [
 ] as const;
 
 const STEP_LABELS = [
+  "Sede",
   "Tipo de mascota",
   "Servicio",
   "Tamaño",
-  "Pelaje",
   "Mascota Agregada",
   "Fecha",
   "Horario",
@@ -93,9 +100,12 @@ export function BookingWizard() {
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<FormData>({
     ...INITIAL_PET_FIELDS,
+    branch: null,
     corteType: null,
     corteSpecs: "",
     corteImage: "",
+    bathType: null,
+    perfume: null,
     pets: [],
     date: null,
     timeRange: null,
@@ -119,7 +129,7 @@ export function BookingWizard() {
   const progress = ((currentStep + 1) / totalSteps) * 100;
 
   const saveCurrentPet = () => {
-    if (!formData.petType || !formData.service || !formData.size || !formData.coat) return;
+    if (!formData.petType || !formData.service || !formData.size) return;
     const pet: PetData = {
       petType: formData.petType,
       service: formData.service,
@@ -131,6 +141,8 @@ export function BookingWizard() {
       corteType: formData.corteType,
       corteSpecs: formData.corteSpecs,
       corteImage: formData.corteImage,
+      bathType: formData.bathType,
+      perfume: formData.perfume,
     };
     setFormData((prev) => ({ ...prev, pets: [...prev.pets, pet] }));
   };
@@ -152,7 +164,7 @@ export function BookingWizard() {
   const handleAddAnother = () => {
     saveCurrentPet();
     setFormData((prev) => ({ ...prev, ...INITIAL_PET_FIELDS }));
-    setCurrentStep(0);
+    setCurrentStep(1);
   };
 
   const handleContinue = () => {
